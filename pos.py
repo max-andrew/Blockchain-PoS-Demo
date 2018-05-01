@@ -1,5 +1,14 @@
 # proof of stake
 
+# use weighted randomness to select a miner to validate
+	# read blockchain to generate a list of users
+	# use the balances of each user to determine their likelihood of being selected
+# validate a transaction "block" and add to blockchain
+
+# TODO:
+# simulate the network using socket programming
+# only allow validation is validator is online
+
 import random
 
 # blockchain represented by transaction array "blocks"
@@ -63,12 +72,15 @@ def selectminer():
 	for i in range(len(coins)):
 		if rand <= coins[i]:
 			print(stkholds[i] + " was selected to mine the next block.")
+			break
 		# if stkholds[i] not in online:
 		# 	print("Error: " + stkholds[i] + " is offline and cannot verify transactions.")
 		# 	selectminer()
 
+print("Most recent block: ") 
 print(chain[len(chain)-1])
 verifyblock()
+print("Most recent block: ") 
 print(chain[len(chain)-1])
 
 # Each block (every 60 seconds), a random Nextcoin is selected to be the next "miner". 
