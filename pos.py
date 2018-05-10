@@ -7,17 +7,22 @@
 
 # TODO:
 # simulate the network using socket programming
+	# make validation occur on machine selected
 # only allow validation is validator is online
+	# ignore unresponsive wallet next round
+# automatic validation
+	# Each block (every 60 seconds), a random Nextcoin is selected to be the next "miner".
+# include transaction fees
 
 import random
 
 # blockchain represented by transaction array "blocks"
 # send from, send to, amount
-chain = [['sys','max',10], ['sys','andrew',10], ['sys','selma',10], ['andrew','max',6.2], ['max','selma',3.1]]
+chain = [['sys','max',10], ['sys','andrew',10], ['sys','selma',10], ['max','andrew',6], ['max','selma',3]]
 online = ['selma', 'max','andrew']
 
 # send from, send to, amount
-transac_pool = [['max', 'andrew',  .25], ['selma', 'andrew',  .25]]
+transac_pool = [['max', 'andrew',  .25], ['max', 'selma',  11], ['selma', 'andrew',  .25]]
 
 # read the blockchain and return a list of stakeholders
 def findusers():
@@ -39,56 +44,74 @@ def getbalance(stkholder):
 
 # add transactions from pool to chain if each agent has sufficient funds
 def verifyblock():
-	selectminer()
-	if getbalance(transac_pool[0][0])>=transac_pool[0][2]:
-		chain.append(transac_pool[0])
+	# if there are transactions to validate
+	if len(transac_pool) > 0:
+		selectminer()
+		# if user's balance is greater than amount sent
+		if getbalance(transac_pool[0][0])>=transac_pool[0][2]:
+			# add transaction to chain
+			chain.append(transac_pool[0])
+			# remove transac from pool
+			transac_pool.remove(transac_pool[0])
+		else:
+			print "Error: invalid block, insufficient funds."
+			# remove from pool
+			transac_pool.remove(transac_pool[0])
 	else:
-		print "Error: invalid block, insufficient funds."
+		print "Error: no transactions to validate."
 
 # determine which stakeholder will verify the next block
 def selectminer():
 	# select a weighted random validator (based on stake size)
 	stkholds = findusers()
 	# outstanding coins
-	outst = 30
+	outst = 0
 	# numbered coins of each user
-	coins = [10,20,30]
+	coins = []
 
 	# determine number of outstanding coins
-	for i in range(len(stkholds)):
+	for i in stkholds:
 		outst += getbalance(i)
 
 	# fill coins list
-	for i in range(len(stkholds)):
-		if i > 0:
-			coins.append(getbalance(i)+coins[i-1])
+	j = 0
+	for i in stkholds:
+		# add to last balance if not 0 index
+		if j > 0:
+			coins.append(getbalance(i)+coins[j-1])
 		else:
 			coins.append(getbalance(i))
+		print(coins)
+		j += 1
 
 	# get a random number with size equal to coins outstanding
 	rand = random.randrange(outst)
 
-	# associate the chosen coin with a user
-	for i in range(len(coins)):
-		if rand <= coins[i]:
-			print(stkholds[i] + " was selected to mine the next block.")
-			break
-		# if stkholds[i] not in online:
-		# 	print("Error: " + stkholds[i] + " is offline and cannot verify transactions.")
-		# 	selectminer()
+	# throw exception if outstanding coins = 0
 
+	# associate the chosen coin with a user
+	j = 0
+	for i in coins:
+		if rand <= coins[j]:
+			print(stkholds[j] + " was selected to mine the next block.")
+			# if stkholds[i] not in online:
+			# 	print("Error: " + stkholds[i] + " is offline and cannot verify transactions.")
+			# 	selectminer()
+			break
+		j += 1
+
+verifyblock()
 print("Most recent block: ") 
-print(chain[len(chain)-1])
+print(chain)
+
 verifyblock()
 print("Most recent block: ") 
 print(chain[len(chain)-1])
 
-# Each block (every 60 seconds), a random Nextcoin is selected to be the next "miner". 
-# the odds of a single wallet being selected is the number of coins in that wallet divided by total outstanding coins 
-# (Also, it's possible to calculate and agree on who that node is so the transactions need only be sent to that particular wallet.)
+verifyblock()
+print("Most recent block: ") 
+print(chain[len(chain)-1])
 
-# If a node with the selected wallet is running, it will collect the transactions, 
-# make a block, and send it to the rest of the network and collect the fees. 
-# If the computer is turned off, however, then the entire network will have to 
-# select a different nextcoin to make the transaction. 
-# This time, the unresponsive wallet will be ignored.
+verifyblock()
+print("Most recent block: ") 
+print(chain[len(chain)-1])
