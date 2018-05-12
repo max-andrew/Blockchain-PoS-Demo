@@ -13,6 +13,7 @@
 # automatic validation
 	# Each block (every 60 seconds), a random Nextcoin is selected to be the next "miner".
 # include transaction fees
+# report invalid block added to chain
 
 import random
 
